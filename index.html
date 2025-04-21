@@ -20,7 +20,7 @@
   <div id="schedule"></div>
   <script>
     const schedule = {
-      "10:00 – 11:00": ["David Uclés", "Roc Casagran i Casañas"],
+      "10:00 – 11:00": ["David Uclés", "Roc Casagran"],
       "11:00 – 12:00": [
         "Alice Kellen", "Inma Rubiales", "Dr. Manel Sans Segarra", "Juan Carlos Cebrián", "72 Kilos", "Borja Vilaseca",
         "Jaime Palomera", "Mara Torres", "Silvia Intxaurrondo", "Paloma San Basilio", "Alejandro Palomas",
@@ -46,19 +46,19 @@
         "Pedro Mañas", "David Sierra"
       ],
       "17:00 – 18:00": [
-        "Javier Castillo", "Blue Jeans", "Andrea Longarela", "Elísabet Benavent", "Fernando Navarro (Supersubmarina)",
+        "Javier Castillo", "Blue Jeans", "Andrea Longarela", "Elisabet Benavent", "Fernando Navarro (Supersubmarina)",
         "Toni Acosta", "Nina", "Lola Vendetta", "Eva G. Sáenz de Urturi", "Dolores Redondo",
         "Fer Rivas", "Carlos Esquembre", "Luna Javierre", "Inma Chacón", "Ana Oncina",
         "Julián Casanova", "Francesc Serés", "Pedro Mañas", "David Sierra"
       ],
       "18:00 – 19:00": [
-        "Javier Castillo", "Blue Jeans", "Elísabet Benavent", "Carolina Iglesias", "Fernando Navarro (Supersubmarina)",
+        "Javier Castillo", "Blue Jeans", "Elisabet Benavent", "Carolina Iglesias", "Fernando Navarro (Supersubmarina)",
         "Toni Acosta", "María Oruña", "Elena Montagud", "Eva G. Sáenz de Urturi", "Francesca Giannone",
         "Alba Cardalda", "Doctor Aldo", "Luna Javierre", "Ildefonso Falcones", "Teresa Valero",
         "Sara García Alonso", "Marius Serra"
       ],
       "19:00 – 20:00": [
-        "Javier Castillo", "Blue Jeans", "Zahara", "Elísabet Benavent", "Carolina Iglesias", "Noemí Casquet",
+        "Javier Castillo", "Blue Jeans", "Zahara", "Elisabet Benavent", "Carolina Iglesias", "Noemí Casquet",
         "Enric Pardo", "María Oruña", "Elena Montagud", "Tània Juste", "Alejandra G. Remón",
         "Alba Cardalda", "Amaia Arrazola", "Laia López", "Ildefonso Falcones",
         "Marta Salicrú", "Ramon Solsona", "Rodrigo Cortés"
@@ -67,17 +67,26 @@
 
     const placeholder = 'https://via.placeholder.com/300x300?text=No+imagen';
 
-    // Normaliza texto para fallback
     function slug(text) {
       return text.toLowerCase().normalize('NFD')
         .replace(/[\u0300-\u036f]/g, '')
         .replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
     }
 
-    // Obtiene imagen desde Wikipedia REST summary
+    async function fetchFromREST(lang, title) {
+      try {
+        const res = await fetch(
+          `https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`
+        );
+        if (!res.ok) throw new Error('No summary');
+        const data = await res.json();
+        return data.thumbnail && data.thumbnail.source;
+      } catch { return null; }
+    }
+
     async function fetchImage(author) {
       let title = author;
-      // Búsqueda previa para hallar título correcto
+      // Buscar título exacto en Español
       try {
         const search = await fetch(
           `https://es.wikipedia.org/w/api.php?origin=*&action=query&list=search&srsearch=${encodeURIComponent(author)}&format=json`
@@ -85,36 +94,32 @@
         const { query: { search: hits } } = await search.json();
         if (hits && hits.length) title = hits[0].title;
       } catch {}
-      // REST summary para thumbnail
-      try {
-        const summary = await fetch(
-          `https://es.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`
-        );
-        const data = await summary.json();
-        if (data.thumbnail && data.thumbnail.source) {
-          return data.thumbnail.source;
-        }
-      } catch {}
-      // fallback placeholder
+      // Intentar imagen en es.wikipedia
+      let img = await fetchFromREST('es', title);
+      if (img) return img;
+      // Intentar imagen en ca.wikipedia
+      img = await fetchFromREST('ca', title);
+      if (img) return img;
+      // Fallback con placeholder
       return `${placeholder}&text=${slug(author)}`;
     }
 
-    // Renderizado dinámico
     const container = document.getElementById('schedule');
-    for (const [time, authors] of Object.entries(schedule)) {
+    Object.entries(schedule).forEach(([time, authors]) => {
       const section = document.createElement('section');
       section.innerHTML = `<h2>${time}</h2>`;
       const gallery = document.createElement('div'); gallery.className = 'gallery';
-      for (const author of authors) {
+      authors.forEach(author => {
         const card = document.createElement('div'); card.className = 'card';
         const img = document.createElement('img'); img.alt = author;
         fetchImage(author).then(src => img.src = src);
-        card.append(img, Object.assign(document.createElement('div'), { className: 'caption', textContent: author }));
+        const caption = document.createElement('div'); caption.className = 'caption'; caption.textContent = author;
+        card.append(img, caption);
         gallery.appendChild(card);
-      }
+      });
       section.appendChild(gallery);
       container.appendChild(section);
-    }
+    });
   </script>
 </body>
 </html>
