@@ -11,7 +11,7 @@
     h2 { border-bottom: 2px solid #333; padding-bottom: 8px; margin-bottom: 20px; color: #333; }
     .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 20px; }
     .card { background: #fff; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); overflow: hidden; text-align: center; }
-    .card img { width: 100%; height: auto; display: block; }
+    .card img { width: 100%; height: auto; display: block; background: #eaeaea; }
     .caption { padding: 10px; font-size: 14px; color: #555; }
   </style>
 </head>
@@ -29,19 +29,19 @@
       ],
       "12:00 – 13:00": [
         "Alice Kellen", "Inma Rubiales", "Dr. Manel Sans Segarra", "Juan Carlos Cebrián", "Ángel Martín", "72 Kilos",
-        "El Monaguillo", "Mara Torres", "Joana Cabratosa / Ona Jou / Núria Simon", "Joaquim Bosch",
+        "El Monaguillo", "Mara Torres", "Joana Cabratosa", "Ona Jou", "Núria Simon", "Joaquim Bosch",
         "Pedro Baños", "Roberto Brasero", "Julia Navarro", "Alana S. Portero", "Manuela Carmena",
         "Mikel L. Iturriaga", "Bárbara Montes", "Jordi y Martí Roca", "Cristina Pedroche"
       ],
       "13:00 – 14:00": [
         "Alice Kellen", "Inma Rubiales", "Josep Vicent Frechina", "Ángel Martín", "Xavier Guix", "Natacha Alfageme",
-        "El Monaguillo", "Alejandro G. Calvo", "Joana Cabratosa / Ona Jou / Núria Simon", "Miguel Ángel Revilla",
-        "Juan Trejo", "Manel Vidal Boix", "Beatriz Serrano", "Paloma Sánchez Garnica",
+        "El Monaguillo", "Alejandro G. Calvo", "Joana Cabratosa", "Ona Jou", "Núria Simon",
+        "Miguel Ángel Revilla", "Juan Trejo", "Manel Vidal Boix", "Beatriz Serrano", "Paloma Sánchez Garnica",
         "Defreds", "Pierre Lemaitre", "Pablo d'Ors", "Toni Aira", "Cristina Pedroche"
       ],
       "16:00 – 17:00": [
         "Núria Pradas", "Andrea Longarela", "Laia Perearnau", "Javier Peña", "Miguel Noguera", "Isabel Rojas",
-        "Peyu / R. Peregrina", "Jorge Díaz", "Dolores Redondo", "Santiago Díaz", "3XL Vibes",
+        "Peyu", "R. Peregrina", "Jorge Díaz", "Dolores Redondo", "Santiago Díaz", "3XL Vibes",
         "Ester Invernon", "Ramon Gener", "Jair Domínguez", "Martí Gironell", "Xavier Pla",
         "Pedro Mañas", "David Sierra"
       ],
@@ -67,62 +67,54 @@
 
     const placeholder = 'https://via.placeholder.com/300x300?text=No+imagen';
 
-    // Genera slug para fallback de placeholder
+    // Normaliza texto para fallback
     function slug(text) {
       return text.toLowerCase().normalize('NFD')
         .replace(/[\u0300-\u036f]/g, '')
         .replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
     }
 
-    // Busca primero título con API de búsqueda, luego extrae miniatura
+    // Obtiene imagen desde Wikipedia REST summary
     async function fetchImage(author) {
       let title = author;
-      // Primera búsqueda para encontrar título exacto
+      // Búsqueda previa para hallar título correcto
       try {
-        const searchUrl = `https://es.wikipedia.org/w/api.php?origin=*&action=query&list=search&srsearch=${encodeURIComponent(author)}&format=json`;
-        const searchRes = await fetch(searchUrl);
-        const searchData = await searchRes.json();
-        const hits = searchData.query.search;
-        if (hits && hits.length) {
-          title = hits[0].title;
-        }
-      } catch (e) {
-        console.warn('Search failed for', author, e);
-      }
-      // Consulta miniatura
+        const search = await fetch(
+          `https://es.wikipedia.org/w/api.php?origin=*&action=query&list=search&srsearch=${encodeURIComponent(author)}&format=json`
+        );
+        const { query: { search: hits } } = await search.json();
+        if (hits && hits.length) title = hits[0].title;
+      } catch {}
+      // REST summary para thumbnail
       try {
-        const imgUrl = `https://es.wikipedia.org/w/api.php?origin=*&action=query&titles=${encodeURIComponent(title)}&prop=pageimages&format=json&pithumbsize=300`;
-        const imgRes = await fetch(imgUrl);
-        const imgData = await imgRes.json();
-        const pages = imgData.query.pages;
-        const page = Object.values(pages)[0];
-        if (page && page.thumbnail && page.thumbnail.source) {
-          return page.thumbnail.source;
+        const summary = await fetch(
+          `https://es.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`
+        );
+        const data = await summary.json();
+        if (data.thumbnail && data.thumbnail.source) {
+          return data.thumbnail.source;
         }
-      } catch (e) {
-        console.warn('Image fetch failed for', title, e);
-      }
-      // fallback con texto
-      return `https://via.placeholder.com/300x300?text=${slug(author)}`;
+      } catch {}
+      // fallback placeholder
+      return `${placeholder}&text=${slug(author)}`;
     }
 
-    // Construye la galería dinámica
+    // Renderizado dinámico
     const container = document.getElementById('schedule');
-    Object.entries(schedule).forEach(([time, authors]) => {
+    for (const [time, authors] of Object.entries(schedule)) {
       const section = document.createElement('section');
       section.innerHTML = `<h2>${time}</h2>`;
       const gallery = document.createElement('div'); gallery.className = 'gallery';
-      authors.forEach(author => {
+      for (const author of authors) {
         const card = document.createElement('div'); card.className = 'card';
         const img = document.createElement('img'); img.alt = author;
         fetchImage(author).then(src => img.src = src);
-        const caption = document.createElement('div'); caption.className = 'caption'; caption.textContent = author;
-        card.append(img, caption);
+        card.append(img, Object.assign(document.createElement('div'), { className: 'caption', textContent: author }));
         gallery.appendChild(card);
-      });
+      }
       section.appendChild(gallery);
       container.appendChild(section);
-    });
+    }
   </script>
 </body>
 </html>
