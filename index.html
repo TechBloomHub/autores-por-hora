@@ -15,14 +15,13 @@
     section { margin-bottom: 60px; }
     h2 { border-bottom: 2px solid #333; padding-bottom: 8px; margin-bottom: 20px; color: #333; }
     .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 20px; }
-    .card, .image-display img { background: #fff; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-    .card img, .image-display img { width: 100%; height: auto; display: block; background: #eaeaea; }
-    .caption { padding: 10px; font-size: 14px; color: #555; text-align: center; }
+    .card { background: #fff; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); overflow: hidden; text-align: center; }
+    .card img, .image-display img { width: 100%; height: auto; display: block; background: #eaeaea; border-radius: 4px; }
+    .caption { padding: 10px; font-size: 14px; color: #555; }
     .summary-buttons { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
     .summary-buttons button { padding: 10px 15px; cursor: pointer; border: none; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.2); border-radius: 4px; }
     .summary-buttons button.active { background: #333; color: #fff; }
     .image-display { display: flex; justify-content: center; flex-wrap: wrap; gap: 20px; }
-    .image-display img { max-width: 300px; border-radius: 8px; }
   </style>
 </head>
 <body>
@@ -47,135 +46,58 @@
       <button data-hour="18h">18h</button>
       <button data-hour="19h">19h</button>
     </div>
-    <div class="image-display" id="image-display">
-      <!-- Imagen seleccionada aparecerá aquí -->
-    </div>
+    <div class="image-display" id="image-display"></div>
   </div>
 
   <script>
     const schedule = {
-      "10:00 – 11:00": [
-        "1", "2", "3", "4", "5", "6",
-        "7 DAVID UCLÉS", "8 ROC CASAGRAN", "9", "10",
-        "11", "12", "13", "14", "15",
-        "16", "17", "18", "19", "20"
-      ],
-      "11:00 – 12:00": [
-        "1", "2 INMA RUBIALES", "3 Dr. M. SANS SEGARRA I J. C. CEBRIÁN", "4 ALICE KELLEN", "5 72 KILOS", "6 BORJA VILASECA",
-        "7 JAIME PALOMERA", "8 MARA TORRES", "9 SILVIA INTXAURRONDO", "10",
-        "11 PALOMA SAN BASILIO", "12 ALEJANDRO PALOMAS", "13 PEDRO PIQUERAS", "14 TOMÁS PÁRAMO", "15 CARLOS DEL AMOR",
-        "16 CARMEN MOLA", "17 LAURA FA I MARTA PONTNOU", "18 JORDI SIERRA I FABRA", "19 NAJAT EL HACHMI", "20"
-      ],
-      "12:00 – 13:00": [
-        "1 ÁNGEL MARTÍN", "2 INMA RUBIALES", "3 Dr. M. SANS SEGARRA I J. C. CEBRIÁN", "4 ALICE KELLEN", "5 72 KILOS", "6",
-        "7 EL MONAGUILLO", "8 MARA TORRES", "9 CAN PUTADES", "10 CAN PUTADES", "11 JOAQUIM BOSCH", "12 PEDRO BAÑOS",
-        "13 ROBERTO BRASERO", "14 JULIA NAVARRO", "15 ALANA S. PORTERO", "16 MANUELA CARMENA", "17 MIKEL L. ITURRIAGA",
-        "18 BÁRBARA MONTES", "19 JORDI I MARTÍ ROCA", "20 CRISTINA PEDROCHE"
-      ],
-      "13:00 – 14:00": [
-        "1 ÁNGEL MARTÍN", "2 INMA RUBIALES", "3 JOSEP V. FRECHINA", "4 ALICE KELLEN", "5 XAVIER GUIX", "6 NATACHA ALFAGEME",
-        "7 EL MONAGUILLO", "8 ALEJANDRO G. CALVO", "9 CAN PUTADES", "10 CAN PUTADES", "11 MIGUEL ÁNGEL REVILLA", "12 JUAN TREJO",
-        "13 MANEL VIDAL BOIX", "14 BEATRIZ SERRANO", "15 PALOMA S. GARNICA", "16 DEFREDS", "17 PIERRE LEMAITRE", "18 PABLO D'ORS",
-        "19 TONI AIRA", "20 CRISTINA PEDROCHE"
-      ],
-      "16:00 – 17:00": [
-        "1", "2 NÚRIA PRADAS", "3 ANDREA LONGARELA", "4 LAIA PEREARNAU", "5 JAVIER PEÑA", "6 MIGUEL NOGUERA",
-        "7", "8 ISABEL ROJAS", "9 PEYU/R. PEREGRINA (EL BÚNQUER)", "10 JORGE DÍAZ", "11 DOLORES REDONDO", "12 SANTIAGO DÍAZ",
-        "13 3XL VIBES", "14", "15 ESTER INVERNON", "16 RAMON GENER", "17 JAIR DOMÍNGUEZ", "18 MARTÍ GIRONELL",
-        "19 XAVIER PLA", "20 P. MAÑAS I D. SIERRA"
-      ],
-      "17:00 – 18:00": [
-        "1 JAVIER CASTILLO", "2 BLUE JEANS", "3 ANDREA LONGARELA", "4 ELISABETH BENAVENT", "5",
-        "6 F. NAVARRO/SUPERSUBMARINA", "7 TONI ACOSTA", "8 NINA", "9 LOLA VENDETTA", "10 EVA G. SÁENZ DE URTURI",
-        "11 DOLORES REDONDO", "12 FER RIVAS", "13 CARLOS ESQUEMBRE", "14 LUNA JAVIERRE", "15",
-        "16 ANA ONCINA", "17 JULIÁN CASANOVA", "18", "19 FRANCESC SERÉS", "20 P. MAÑAS I D. SIERRA"
-      ],
-      "18:00 – 19:00": [
-        "1 JAVIER CASTILLO", "2 BLUE JEANS", "3", "4 ELISABETH BENAVENT", "5 CAROLINA IGLESIAS", "6 F. NAVARRO/SUPERSUBMARINA",
-        "7 TONI ACOSTA", "8 MARÍA ORUÑA", "9 ELENA MONTAGUD", "10 EVA G. SÁENZ DE URTURI", "11 FRANCESCA GIANNIONE", "12 ALBA CARDALDA",
-        "13 DOCTOR ALDO", "14 LUNA JAVIERRE", "15 ILDEFONSO FALCONES", "16 TERESA VALERO", "17 SARA GARCÍA ALONSO", "18",
-        "19 MARIUS SERRA", "20"
-      ],
-      "19:00 – 20:00": [
-        "1 JAVIER CASTILLO", "2 BLUE JEANS", "3 ZAHARA", "4 ELISABETH BENAVENT", "5 CAROLINA IGLESIAS", "6 NOEMÍ CASQUET",
-        "7 ENRIC PARDO", "8 MARÍA ORUÑA", "9 ELENA MONTAGUD", "10 TÀNIA YUSTE", "11 ALEJANDRA G. REMÓN", "12 ALBA CARDALDA",
-        "13 AMAIA ARRAZOLA", "14 LAIA LÓPEZ", "15 ILDEFONSO FALCONES", "16", "17 MARTA SALICRÚ", "18 RODRIGO CORTÉS",
-        "19 RAMON SOLSONA", "20"
-      ]
+      "10:00 – 11:00": ["1","2","3","4","5","6","7 DAVID UCLÉS","8 ROC CASAGRAN","9","10","11","12","13","14","15","16","17","18","19","20"],
+      "11:00 – 12:00": ["1","2 INMA RUBIALES","3 Dr. M. SANS SEGARRA I J. C. CEBRIÁN","4 ALICE KELLEN","5 72 KILOS","6 BORJA VILASECA","7 JAIME PALOMERA","8 MARA TORRES","9 SILVIA INTXAURRONDO","10","11 PALOMA SAN BASILIO","12 ALEJANDRO PALOMAS","13 PEDRO PIQUERAS","14 TOMÁS PÁRAMO","15 CARLOS DEL AMOR","16 CARMEN MOLA","17 LAURA FA I MARTA PONTNOU","18 JORDI SIERRA I FABRA","19 NAJAT EL HACHMI","20"],
+      "12:00 – 13:00": ["1 ÁNGEL MARTÍN","2 INMA RUBIALES","3 Dr. M. SANS SEGARRA I J. C. CEBRIÁN","4 ALICE KELLEN","5 72 KILOS","6","7 EL MONAGUILLO","8 MARA TORRES","9 CAN PUTADES","10 CAN PUTADES","11 JOAQUIM BOSCH","12 PEDRO BAÑOS","13 ROBERTO BRASERO","14 JULIA NAVARRO","15 ALANA S. PORTERO","16 MANUELA CARMENA","17 MIKEL L. ITURRIAGA","18 BÁRBARA MONTES","19 JORDI I MARTÍ ROCA","20 CRISTINA PEDROCHE"],
+      "13:00 – 14:00": ["1 ÁNGEL MARTÍN","2 INMA RUBIALES","3 JOSEP V. FRECHINA","4 ALICE KELLEN","5 XAVIER GUIX","6 NATACHA ALFAGEME","7 EL MONAGUILLO","8 ALEJANDRO G. CALVO","9 CAN PUTADES","10 CAN PUTADES","11 MIGUEL ÁNGEL REVILLA","12 JUAN TREJO","13 MANEL VIDAL BOIX","14 BEATRIZ SERRANO","15 PALOMA S. GARNICA","16 DEFREDS","17 PIERRE LEMAITRE","18 PABLO D'ORS","19 TONI AIRA","20 CRISTINA PEDROCHE"],
+      "16:00 – 17:00": ["1","2 NÚRIA PRADAS","3 ANDREA LONGARELA","4 LAIA PEREARNAU","5 JAVIER PEÑA","6 MIGUEL NOGUERA","7","8 ISABEL ROJAS","9 PEYU/R. PEREGRINA (EL BÚNQUER)","10 JORGE DÍAZ","11 DOLORES REDONDO","12 SANTIAGO DÍAZ","13 3XL VIBES","14","15 ESTER INVERNON","16 RAMON GENER","17 JAIR DOMÍNGUEZ","18 MARTÍ GIRONELL","19 XAVIER PLA","20 P. MAÑAS I D. SIERRA"],
+      "17:00 – 18:00": ["1 JAVIER CASTILLO","2 BLUE JEANS","3 ANDREA LONGARELA","4 ELISABETH BENAVENT","5","6 F. NAVARRO/SUPERSUBMARINA","7 TONI ACOSTA","8 NINA","9 LOLA VENDETTA","10 EVA G. SÁENZ DE URTURI","11 DOLORES REDONDO","12 FER RIVAS","13 CARLOS ESQUEMBRE","14 LUNA JAVIERRE","15","16 ANA ONCINA","17 JULIÁN CASANOVA","18","19 FRANCESC SERÉS","20 P. MAÑAS I D. SIERRA"],
+      "18:00 – 19:00": ["1 JAVIER CASTILLO","2 BLUE JEANS","3","4 ELISABETH BENAVENT","5 CAROLINA IGLESIAS","6 F. NAVARRO/SUPERSUBMARINA","7 TONI ACOSTA","8 MARÍA ORUÑA","9 ELENA MONTAGUD","10 EVA G. SÁENZ DE URTURI","11 FRANCESCA GIANNIONE","12 ALBA CARDALDA","13 DOCTOR ALDO","14 LUNA JAVIERRE","15 ILDEFONSO FALCONES","16 TERESA VALERO","17 SARA GARCÍA ALONSO","18","19 MARIUS SERRA","20"],
+      "19:00 – 20:00": ["1 JAVIER CASTILLO","2 BLUE JEANS","3 ZAHARA","4 ELISABETH BENAVENT","5 CAROLINA IGLESIAS","6 NOEMÍ CASQUET","7 ENRIC PARDO","8 MARÍA ORUÑA","9 ELENA MONTAGUD","10 TÀNIA YUSTE","11 ALEJANDRA G. REMÓN","12 ALBA CARDALDA","13 AMAIA ARRAZOLA","14 LAIA LÓPEZ","15 ILDEFONSO FALCONES","16","17 MARTA SALICRÚ","18 RODRIGO CORTÉS","19 RAMON SOLSONA","20"]
     };
-     const placeholder = 'https://via.placeholder.com/300x300?text=No+imagen';
-
-    // Lógica de obtención de imagen (igual que antes)
-   const placeholder = 'https://via.placeholder.com/300x300?text=No+imagen';
+    const placeholder = 'https://via.placeholder.com/300x300?text=No+imagen';
 
     function slug(text) {
-      return text.toLowerCase().normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+      return text.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
     }
 
     async function fetchFromREST(lang, title) {
       try {
-        const res = await fetch(
-          https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}
-        );
-        if (!res.ok) throw new Error('No summary');
+        const res = await fetch(`https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`);
+        if (!res.ok) throw new Error();
         const data = await res.json();
-        return data.thumbnail && data.thumbnail.source;
-      } catch {
-        return null;
-      }
+        return data.thumbnail?.source;
+      } catch { return null; }
     }
-
     async function fetchFromPageImages(lang, title) {
       try {
-        const url = https://${lang}.wikipedia.org/w/api.php?origin=*&action=query&titles=${encodeURIComponent(title)}&prop=pageimages&pithumbsize=300&format=json;
-        const res = await fetch(url);
-        if (!res.ok) throw new Error('No pageimages');
-        const data = await res.json();
-        const pages = data.query && data.query.pages;
-        for (const id in pages) {
-          const page = pages[id];
-          if (page.thumbnail && page.thumbnail.source) {
-            return page.thumbnail.source;
-          }
-        }
-      } catch {
-        return null;
-      }
+        const res = await fetch(`https://${lang}.wikipedia.org/w/api.php?origin=*&action=query&titles=${encodeURIComponent(title)}&prop=pageimages&pithumbsize=300&format=json`);
+        if (!res.ok) throw new Error();
+        const json = await res.json();
+        const pages = json.query.pages;
+        for (let id in pages) if (pages[id].thumbnail) return pages[id].thumbnail.source;
+      } catch {};
       return null;
     }
-
     async function fetchImage(author) {
-      const name = author.replace(/^\s*\d+\s*/, '').trim();
-      if (!name) {
-        return ${placeholder}&text=${slug(author)};
-      }
+      const name = author.replace(/^\d+\s*/, '').trim();
+      if (!name) return `${placeholder}&text=${slug(author)}`;
       let title = name;
       try {
-        const searchRes = await fetch(
-          https://es.wikipedia.org/w/api.php?origin=*&action=query&list=search&srsearch=${encodeURIComponent(name)}&format=json
-        );
-        const { query: { search: hits } } = await searchRes.json();
-        if (hits && hits.length) title = hits[0].title;
+        const res = await fetch(`https://es.wikipedia.org/w/api.php?origin=*&action=query&list=search&srsearch=${encodeURIComponent(name)}&format=json`);
+        const hits = (await res.json()).query.search;
+        if (hits.length) title = hits[0].title;
       } catch {}
-
-      // 1. REST summary
-      let img = await fetchFromREST('es', title);
-      if (img) return img;
-      // 2. pageimages
-      img = await fetchFromPageImages('es', title);
-      if (img) return img;
-      // 3. fallback Catalán
-      img = await fetchFromREST('ca', title) || await fetchFromPageImages('ca', title);
-      if (img) return img;
-      // final placeholder
-      return ${placeholder}&text=${slug(name)};
+      let img = await fetchFromREST('es', title) || await fetchFromPageImages('es', title) || await fetchFromREST('ca', title) || await fetchFromPageImages('ca', title);
+      return img || `${placeholder}&text=${slug(name)}`;
     }
 
-
-
-    // Generar galería de fotos
+    // Generar galería
     const container = document.getElementById('schedule');
     Object.entries(schedule).forEach(([time, authors]) => {
       const section = document.createElement('section');
@@ -193,7 +115,6 @@
       container.appendChild(section);
     });
 
-    // Mapeo de imágenes de resumen por hora
     const summaryImages = {
       "10h": "https://tinypic.host/images/2025/04/22/1b3b701be93d2cf3a.jpg",
       "11h": "https://tinypic.host/images/2025/04/22/214374ef4bd3d8fca.jpg",
@@ -205,7 +126,7 @@
       "19h": "https://tinypic.host/images/2025/04/22/8.jpg"
     };
 
-    // Pestañas
+    // Tabs
     document.getElementById('tab-photos').addEventListener('click', () => {
       document.getElementById('photos-section').classList.add('active');
       document.getElementById('summary-section').classList.remove('active');
@@ -219,19 +140,15 @@
       document.getElementById('tab-photos').classList.remove('active');
     });
 
-    // Funcionalidad de botones de resumen
+    // Summary buttons logic
     const buttons = document.querySelectorAll('#summary-buttons button');
     const imageDisplay = document.getElementById('image-display');
-    buttons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        buttons.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        const hour = btn.getAttribute('data-hour');
-        const url = summaryImages[hour];
-        imageDisplay.innerHTML = `<img src="${url}" alt="Resumen ${hour}">`;
-      });
-    });
+    buttons.forEach(btn => btn.addEventListener('click', () => {
+      buttons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const hour = btn.dataset.hour;
+      imageDisplay.innerHTML = `<img src="${summaryImages[hour]}" alt="Resumen ${hour}">`;
+    }));
   </script>
 </body>
 </html>
-
