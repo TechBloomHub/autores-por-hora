@@ -106,7 +106,74 @@
      const placeholder = 'https://via.placeholder.com/300x300?text=No+imagen';
 
     // Lógica de obtención de imagen (igual que antes)
-    async function fetchImage(author) { /* ... */ }
+   const placeholder = 'https://via.placeholder.com/300x300?text=No+imagen';
+
+    function slug(text) {
+      return text.toLowerCase().normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    }
+
+    async function fetchFromREST(lang, title) {
+      try {
+        const res = await fetch(
+          https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}
+        );
+        if (!res.ok) throw new Error('No summary');
+        const data = await res.json();
+        return data.thumbnail && data.thumbnail.source;
+      } catch {
+        return null;
+      }
+    }
+
+    async function fetchFromPageImages(lang, title) {
+      try {
+        const url = https://${lang}.wikipedia.org/w/api.php?origin=*&action=query&titles=${encodeURIComponent(title)}&prop=pageimages&pithumbsize=300&format=json;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('No pageimages');
+        const data = await res.json();
+        const pages = data.query && data.query.pages;
+        for (const id in pages) {
+          const page = pages[id];
+          if (page.thumbnail && page.thumbnail.source) {
+            return page.thumbnail.source;
+          }
+        }
+      } catch {
+        return null;
+      }
+      return null;
+    }
+
+    async function fetchImage(author) {
+      const name = author.replace(/^\s*\d+\s*/, '').trim();
+      if (!name) {
+        return ${placeholder}&text=${slug(author)};
+      }
+      let title = name;
+      try {
+        const searchRes = await fetch(
+          https://es.wikipedia.org/w/api.php?origin=*&action=query&list=search&srsearch=${encodeURIComponent(name)}&format=json
+        );
+        const { query: { search: hits } } = await searchRes.json();
+        if (hits && hits.length) title = hits[0].title;
+      } catch {}
+
+      // 1. REST summary
+      let img = await fetchFromREST('es', title);
+      if (img) return img;
+      // 2. pageimages
+      img = await fetchFromPageImages('es', title);
+      if (img) return img;
+      // 3. fallback Catalán
+      img = await fetchFromREST('ca', title) || await fetchFromPageImages('ca', title);
+      if (img) return img;
+      // final placeholder
+      return ${placeholder}&text=${slug(name)};
+    }
+
+
 
     // Generar galería de fotos
     const container = document.getElementById('schedule');
