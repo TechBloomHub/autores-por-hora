@@ -20,7 +20,12 @@
   <div id="schedule"></div>
   <script>
     const schedule = {
-      "10:00 – 11:00": ["David Uclés", "Roc_Casagran_i_Casañas"],
+      "10:00 – 11:00": [
+        "1", "2", "3", "4", "5", "6",
+        "7 DAVID UCLÉS", "8 ROC CASAGRAN", "9", "10",
+        "11", "12", "13", "14", "15",
+        "16", "17", "18", "19", "20"
+      ],
       "11:00 – 12:00": [
         "Alice Kellen", "Inma Rubiales", "Manuel Sans Segarra", "Juan Carlos Cebrián", "72 Kilos", "Borja Vilaseca",
         "Jaime Palomera", "Mara Torres", "Silvia Intxaurrondo", "Paloma San Basilio", "Alejandro Palomas",
@@ -95,12 +100,13 @@
         if (hits && hits.length) title = hits[0].title;
       } catch {}
       // Intentar imagen en es.wikipedia
+      if (!author.trim() || /^\d+$/.test(author)) {
+        return `${placeholder}&text=${slug(author)}`; // no foto para asientos vacíos o númericos
+      }
       let img = await fetchFromREST('es', title);
       if (img) return img;
-      // Intentar imagen en ca.wikipedia
       img = await fetchFromREST('ca', title);
       if (img) return img;
-      // Fallback con placeholder
       return `${placeholder}&text=${slug(author)}`;
     }
 
