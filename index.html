@@ -70,7 +70,7 @@
       ]
     };
 
-    const placeholder = 'https://via.placeholder.com/300x300?text=No+imagen';
+        const placeholder = 'https://via.placeholder.com/300x300?text=No+imagen';
 
     function slug(text) {
       return text.toLowerCase().normalize('NFD')
@@ -91,29 +91,49 @@
       }
     }
 
+    async function fetchFromPageImages(lang, title) {
+      try {
+        const url = `https://${lang}.wikipedia.org/w/api.php?origin=*&action=query&titles=${encodeURIComponent(title)}&prop=pageimages&pithumbsize=300&format=json`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('No pageimages');
+        const data = await res.json();
+        const pages = data.query && data.query.pages;
+        for (const id in pages) {
+          const page = pages[id];
+          if (page.thumbnail && page.thumbnail.source) {
+            return page.thumbnail.source;
+          }
+        }
+      } catch {
+        return null;
+      }
+      return null;
+    }
+
     async function fetchImage(author) {
-      // Extraer solo el nombre, quitando el número de asiento al inicio
       const name = author.replace(/^\s*\d+\s*/, '').trim();
       if (!name) {
-        // Asiento vacío: devolvemos placeholder sin foto
         return `${placeholder}&text=${slug(author)}`;
       }
       let title = name;
-      // Buscar título exacto en Español
       try {
-        const search = await fetch(
+        const searchRes = await fetch(
           `https://es.wikipedia.org/w/api.php?origin=*&action=query&list=search&srsearch=${encodeURIComponent(name)}&format=json`
         );
-        const { query: { search: hits } } = await search.json();
+        const { query: { search: hits } } = await searchRes.json();
         if (hits && hits.length) title = hits[0].title;
       } catch {}
-      // Intentar imagen en es.wikipedia
+
+      // 1. REST summary
       let img = await fetchFromREST('es', title);
       if (img) return img;
-      // Intentar imagen en ca.wikipedia
-      img = await fetchFromREST('ca', title);
+      // 2. pageimages
+      img = await fetchFromPageImages('es', title);
       if (img) return img;
-      // Fallback con placeholder usando nombre limpio
+      // 3. fallback Catalán
+      img = await fetchFromREST('ca', title) || await fetchFromPageImages('ca', title);
+      if (img) return img;
+      // final placeholder
       return `${placeholder}&text=${slug(name)}`;
     }
 
@@ -121,16 +141,12 @@
     Object.entries(schedule).forEach(([time, authors]) => {
       const section = document.createElement('section');
       section.innerHTML = `<h2>${time}</h2>`;
-      const gallery = document.createElement('div');
-      gallery.className = 'gallery';
+      const gallery = document.createElement('div'); gallery.className = 'gallery';
       authors.forEach(author => {
-        const card = document.createElement('div');
-        card.className = 'card';
-        const img = document.createElement('img');
-        img.alt = author;
+        const card = document.createElement('div'); card.className = 'card';
+        const img = document.createElement('img'); img.alt = author;
         fetchImage(author).then(src => img.src = src);
-        const caption = document.createElement('div');
-        caption.className = 'caption';
+        const caption = document.createElement('div'); caption.className = 'caption';
         caption.textContent = author;
         card.append(img, caption);
         gallery.appendChild(card);
