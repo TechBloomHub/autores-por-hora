@@ -27,16 +27,16 @@
         "16", "17", "18", "19", "20"
       ],
       "11:00 – 12:00": [
-        "Alice Kellen", "Inma Rubiales", "Manuel Sans Segarra", "Juan Carlos Cebrián", "72 Kilos", "Borja Vilaseca",
-        "Jaime Palomera", "Mara Torres", "Silvia Intxaurrondo", "Paloma San Basilio", "Alejandro Palomas",
-        "Pedro Piqueras", "Tomás Páramo", "Carlos del Amor", "Carmen Mola", "Laura Fa", "Marta Pontnou",
-        "Jordi Sierra i Fabra", "Najat el Hachmi"
+        "1", "2 INMA RUBIALES", "3 Dr. M. SANS SEGARRA I J. C. CEBRIÁN", "4 ALICE KELLEN", "5 72 KILOS", "6 BORJA VILASECA",
+        "7 JAIME PALOMERA", "8 MARA TORRES", "9 SILVIA INTXAURRONDO", "10",
+        "11 PALOMA SAN BASILIO", "12 ALEJANDRO PALOMAS", "13 PEDRO PIQUERAS", "14 TOMÁS PÁRAMO", "15 CARLOS DEL AMOR",
+        "16 CARMEN MOLA", "17 LAURA FA I MARTA PONTNOU", "18 JORDI SIERRA I FABRA", "19 NAJAT EL HACHMI", "20"
       ],
       "12:00 – 13:00": [
-        "Alice Kellen", "Inma Rubiales", "Manuel Sans Segarra", "Juan Carlos Cebrián", "Ángel Martín", "72 Kilos",
-        "El Monaguillo", "Mara Torres", "Can Putades", "Joaquim Bosch",
-        "Pedro Baños", "Roberto Brasero", "Julia Navarro", "Alana S. Portero", "Manuela Carmena",
-        "Mikel L. Iturriaga", "Bárbara Montes", "Jordi y Martí Roca", "Cristina Pedroche"
+        "1 ÁNGEL MARTÍN", "2 INMA RUBIALES", "3 Dr. M. SANS SEGARRA I J. C. CEBRIÁN", "4 ALICE KELLEN", "5 72 KILOS", "6",
+        "7 EL MONAGUILLO", "8 MARA TORRES", "9 CAN PUTADES", "10 CAN PUTADES", "11 JOAQUIM BOSCH", "12 PEDRO BAÑOS",
+        "13 ROBERTO BRASERO", "14 JULIA NAVARRO", "15 ALANA S. PORTERO", "16 MANUELA CARMENA", "17 MIKEL L. ITURRIAGA",
+        "18 BÁRBARA MONTES", "19 JORDI I MARTÍ ROCA", "20 CRISTINA PEDROCHE"
       ],
       "13:00 – 14:00": [
         "Alice Kellen", "Inma Rubiales", "Josep Vicent Frechina", "Ángel Martín", "Xavier Guix", "Natacha Alfageme",
@@ -99,9 +99,9 @@
         const { query: { search: hits } } = await search.json();
         if (hits && hits.length) title = hits[0].title;
       } catch {}
-      // Intentar imagen en es.wikipedia
-      if (!author.trim() || /^\d+$/.test(author)) {
-        return `${placeholder}&text=${slug(author)}`; // no foto para asientos vacíos o númericos
+      // Sin foto para nombres vacíos o puramente numéricos
+      if (!author.trim() || /^\d/.test(author)) {
+        return `${placeholder}&text=${slug(author)}`;
       }
       let img = await fetchFromREST('es', title);
       if (img) return img;
