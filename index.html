@@ -39,34 +39,34 @@
         "18 BÁRBARA MONTES", "19 JORDI I MARTÍ ROCA", "20 CRISTINA PEDROCHE"
       ],
       "13:00 – 14:00": [
-        "Alice Kellen", "Inma Rubiales", "Josep Vicent Frechina", "Ángel Martín", "Xavier Guix", "Natacha Alfageme",
-        "El Monaguillo", "Alejandro G. Calvo", "Can Putades",
-        "Miguel Ángel Revilla", "Juan Trejo", "Manel Vidal Boix", "Beatriz Serrano", "Paloma Sánchez Garnica",
-        "Defreds", "Pierre Lemaitre", "Pablo d'Ors", "Toni Aira", "Cristina Pedroche"
+        "1 ÁNGEL MARTÍN", "2 INMA RUBIALES", "3 JOSEP V. FRECHINA", "4 ALICE KELLEN", "5 XAVIER GUIX", "6 NATACHA ALFAGEME",
+        "7 EL MONAGUILLO", "8 ALEJANDRO G. CALVO", "9 CAN PUTADES", "10 CAN PUTADES", "11 MIGUEL ÁNGEL REVILLA", "12 JUAN TREJO",
+        "13 MANEL VIDAL BOIX", "14 BEATRIZ SERRANO", "15 PALOMA S. GARNICA", "16 DEFREDS", "17 PIERRE LEMAITRE", "18 PABLO D'ORS",
+        "19 TONI AIRA", "20 CRISTINA PEDROCHE"
       ],
       "16:00 – 17:00": [
-        "Núria Pradas", "Andrea Longarela", "Laia Perearnau", "Javier Peña", "Miguel Noguera", "Isabel Rojas",
-        "Peyu", "R. Peregrina", "Jorge Díaz", "Dolores Redondo", "Santiago Díaz", "3XL Vibes",
-        "Ester Invernon", "Ramon Gener", "Jair Domínguez", "Martí Gironell", "Xavier Pla",
-        "Pedro Mañas", "David Sierra"
+        "1", "2 NÚRIA PRADAS", "3 ANDREA LONGARELA", "4 LAIA PEREARNAU", "5 JAVIER PEÑA", "6 MIGUEL NOGUERA",
+        "7", "8 ISABEL ROJAS", "9 PEYU/R. PEREGRINA (EL BÚNQUER)", "10 JORGE DÍAZ", "11 DOLORES REDONDO", "12 SANTIAGO DÍAZ",
+        "13 3XL VIBES", "14", "15 ESTER INVERNON", "16 RAMON GENER", "17 JAIR DOMÍNGUEZ", "18 MARTÍ GIRONELL",
+        "19 XAVIER PLA", "20 P. MAÑAS I D. SIERRA"
       ],
       "17:00 – 18:00": [
-        "Javier Castillo", "Blue Jeans", "Andrea Longarela", "Elisabet Benavent", "Fernando Navarro (Supersubmarina)",
-        "Toni Acosta", "Nina", "Lola Vendetta", "Eva G. Sáenz de Urturi", "Dolores Redondo",
-        "Fer Rivas", "Carlos Esquembre", "Luna Javierre", "Inma Chacón", "Ana Oncina",
-        "Julián Casanova", "Francesc Serés", "Pedro Mañas", "David Sierra"
+        "1 JAVIER CASTILLO", "2 BLUE JEANS", "3 ANDREA LONGARELA", "4 ELISABETH BENAVENT", "5",
+        "6 F. NAVARRO/SUPERSUBMARINA", "7 TONI ACOSTA", "8 NINA", "9 LOLA VENDETTA", "10 EVA G. SÁENZ DE URTURI",
+        "11 DOLORES REDONDO", "12 FER RIVAS", "13 CARLOS ESQUEMBRE", "14 LUNA JAVIERRE", "15",
+        "16 ANA ONCINA", "17 JULIÁN CASANOVA", "18", "19 FRANCESC SERÉS", "20 P. MAÑAS I D. SIERRA"
       ],
       "18:00 – 19:00": [
-        "Javier Castillo", "Blue Jeans", "Elisabet Benavent", "Carolina Iglesias", "Fernando Navarro (Supersubmarina)",
-        "Toni Acosta", "María Oruña", "Elena Montagud", "Eva G. Sáenz de Urturi", "Francesca Giannone",
-        "Alba Cardalda", "Doctor Aldo", "Luna Javierre", "Ildefonso Falcones", "Teresa Valero",
-        "Sara García Alonso", "Marius Serra"
+        "1 JAVIER CASTILLO", "2 BLUE JEANS", "3", "4 ELISABETH BENAVENT", "5 CAROLINA IGLESIAS", "6 F. NAVARRO/SUPERSUBMARINA",
+        "7 TONI ACOSTA", "8 MARÍA ORUÑA", "9 ELENA MONTAGUD", "10 EVA G. SÁENZ DE URTURI", "11 FRANCESCA GIANNIONE", "12 ALBA CARDALDA",
+        "13 DOCTOR ALDO", "14 LUNA JAVIERRE", "15 ILDEFONSO FALCONES", "16 TERESA VALERO", "17 SARA GARCÍA ALONSO", "18",
+        "19 MARIUS SERRA", "20"
       ],
       "19:00 – 20:00": [
-        "Javier Castillo", "Blue Jeans", "Zahara", "Elisabet Benavent", "Carolina Iglesias", "Noemí Casquet",
-        "Enric Pardo", "María Oruña", "Elena Montagud", "Tània Juste", "Alejandra G. Remón",
-        "Alba Cardalda", "Amaia Arrazola", "Laia López", "Ildefonso Falcones",
-        "Marta Salicrú", "Ramon Solsona", "Rodrigo Cortés"
+        "1 JAVIER CASTILLO", "2 BLUE JEANS", "3 ZAHARA", "4 ELISABETH BENAVENT", "5 CAROLINA IGLESIAS", "6 NOEMÍ CASQUET",
+        "7 ENRIC PARDO", "8 MARÍA ORUÑA", "9 ELENA MONTAGUD", "10 TÀNIA YUSTE", "11 ALEJANDRA G. REMÓN", "12 ALBA CARDALDA",
+        "13 AMAIA ARRAZOLA", "14 LAIA LÓPEZ", "15 ILDEFONSO FALCONES", "16", "17 MARTA SALICRÚ", "18 RODRIGO CORTÉS",
+        "19 RAMON SOLSONA", "20"
       ]
     };
 
@@ -86,40 +86,52 @@
         if (!res.ok) throw new Error('No summary');
         const data = await res.json();
         return data.thumbnail && data.thumbnail.source;
-      } catch { return null; }
+      } catch {
+        return null;
+      }
     }
 
     async function fetchImage(author) {
-      let title = author;
+      // Extraer solo el nombre, quitando el número de asiento al inicio
+      const name = author.replace(/^\s*\d+\s*/, '').trim();
+      if (!name) {
+        // Asiento vacío: devolvemos placeholder sin foto
+        return `${placeholder}&text=${slug(author)}`;
+      }
+      let title = name;
       // Buscar título exacto en Español
       try {
         const search = await fetch(
-          `https://es.wikipedia.org/w/api.php?origin=*&action=query&list=search&srsearch=${encodeURIComponent(author)}&format=json`
+          `https://es.wikipedia.org/w/api.php?origin=*&action=query&list=search&srsearch=${encodeURIComponent(name)}&format=json`
         );
         const { query: { search: hits } } = await search.json();
         if (hits && hits.length) title = hits[0].title;
       } catch {}
-      // Sin foto para nombres vacíos o puramente numéricos
-      if (!author.trim() || /^\d/.test(author)) {
-        return `${placeholder}&text=${slug(author)}`;
-      }
+      // Intentar imagen en es.wikipedia
       let img = await fetchFromREST('es', title);
       if (img) return img;
+      // Intentar imagen en ca.wikipedia
       img = await fetchFromREST('ca', title);
       if (img) return img;
-      return `${placeholder}&text=${slug(author)}`;
+      // Fallback con placeholder usando nombre limpio
+      return `${placeholder}&text=${slug(name)}`;
     }
 
     const container = document.getElementById('schedule');
     Object.entries(schedule).forEach(([time, authors]) => {
       const section = document.createElement('section');
       section.innerHTML = `<h2>${time}</h2>`;
-      const gallery = document.createElement('div'); gallery.className = 'gallery';
+      const gallery = document.createElement('div');
+      gallery.className = 'gallery';
       authors.forEach(author => {
-        const card = document.createElement('div'); card.className = 'card';
-        const img = document.createElement('img'); img.alt = author;
+        const card = document.createElement('div');
+        card.className = 'card';
+        const img = document.createElement('img');
+        img.alt = author;
         fetchImage(author).then(src => img.src = src);
-        const caption = document.createElement('div'); caption.className = 'caption'; caption.textContent = author;
+        const caption = document.createElement('div');
+        caption.className = 'caption';
+        caption.textContent = author;
         card.append(img, caption);
         gallery.appendChild(card);
       });
